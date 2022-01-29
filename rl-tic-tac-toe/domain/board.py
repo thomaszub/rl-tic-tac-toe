@@ -19,3 +19,10 @@ class Board:
         if position[0] < 0 or position[0] > 2 or position[1] < 0 or position[1] > 2:
             raise ValueError(f"Position {position} not on board")
         self._fields[position[0]][position[1]] = player
+
+    def __str__(self) -> str:
+        col_strings = [
+            "|".join(map(lambda x: x.__str__(), col)) for col in self._fields
+        ]
+        str = "\n-----\n".join(col_strings)
+        return str

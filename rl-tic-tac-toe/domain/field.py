@@ -13,3 +13,11 @@ class Field(Enum):
             return 1
         else:
             return -1
+
+    def __str__(self) -> str:
+        if self == Field.FREE:
+            return " "
+        if self == Field.X:
+            return "X"
+        if self == Field.O:
+            return "O"
