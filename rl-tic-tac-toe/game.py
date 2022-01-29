@@ -1,7 +1,8 @@
 from random import randint, randrange
+from typing import Optional
 
 from domain.board import Board
-from domain.field import Field
+from domain.marker import Marker
 from domain.player import Player
 
 
@@ -26,9 +27,9 @@ class Game:
             current_player = self._playerO
         player_won = None
         while player_won == None:
-            player = Field.X if current_player == self._playerX else Field.O
+            player_marker = Marker.X if current_player == self._playerX else Marker.O
             action = current_player.take_turn(self._board)
-            self._board.set_field(action, player)
+            self._board.mark_position(action, player_marker)
             # TODO Determine win condition
             current_player.board_changed(self._board, 0)
             current_player = (
