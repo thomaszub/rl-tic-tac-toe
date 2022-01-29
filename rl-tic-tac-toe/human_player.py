@@ -25,6 +25,6 @@ class HumanPlayer(Player):
             posX = position[0]
             posY = position[1]
             if posX.isdigit() and posY.isdigit():
-                return int(posX), int(posY)
+                return int(posX) - 1, int(posY) - 1
         print("Wrong input, try again!")
         return self._get_user_input()
