@@ -2,7 +2,6 @@ from random import randint, randrange
 from typing import Optional, Tuple
 
 from domain.board import Board
-from domain.marker import Marker
 from domain.player import Player
 
 
