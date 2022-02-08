@@ -1,5 +1,6 @@
 from typing import List, Optional, Tuple
 
+from .gameresult import GameResult
 from .marker import Marker
 
 
@@ -13,9 +14,13 @@ class Board:
             [None, None, None],
         ]
 
-    def mark_position(self, position: Tuple[int, int], marker: Marker):
+    def mark_position(
+        self, position: Tuple[int, int], marker: Marker
+    ) -> Optional[GameResult]:
         self._validate_position(position)
         self._set_field(position, marker)
+        # TODO Check if won
+        return None
 
     def is_position_free(self, position: Tuple[int, int]) -> bool:
         if self._get_field(position) == None:

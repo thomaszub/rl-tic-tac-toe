@@ -1,7 +1,8 @@
-from random import randint, randrange
-from typing import Optional, Tuple
+from random import randint
+from typing import Tuple
 
 from domain.board import Board
+from domain.gameresult import GameResult
 from domain.player import Player
 
 
@@ -21,13 +22,22 @@ class Game:
         self._current_player = self._players[randint(0, 1)]
 
     def start(self) -> None:
-        player_won = None
-        while player_won == None:
+        game_ended = None
+        while game_ended == None:
             action = self._current_player.take_turn(self._board)
-            self._board.mark_position(action, self._current_player.marker())
-            # TODO Determine win condition
-            self._current_player.board_changed(self._board, 0)
-            self._current_player = self._next_player()
+            gameresult = self._board.mark_position(
+                action, self._current_player.marker()
+            )
+            self._current_player.board_changed(self._board, gameresult)
+            if gameresult != None:
+                game_ended = True
+                self._next_player().board_changed(self._board, gameresult.opposite())
+                if gameresult == GameResult.Won:
+                    print(f"Player {self._current_player.name} has won!")
+                else:
+                    print("The game is a draw!")
+            else:
+                self._current_player = self._next_player()
 
     def _next_player(self) -> Player:
         if self._current_player == self._players[0]:

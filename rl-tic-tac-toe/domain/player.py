@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 
 from .board import Board
+from .gameresult import GameResult
 from .marker import Marker
 
 
@@ -16,7 +18,9 @@ class Player(ABC):
         pass
 
     @abstractmethod
-    def board_changed(self, new_board: Board, won_or_lost: int) -> None:
+    def board_changed(
+        self, new_board: Board, game_result: Optional[GameResult]
+    ) -> None:
         pass
 
     def marker(self) -> Marker:

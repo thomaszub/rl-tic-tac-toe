@@ -1,24 +1,29 @@
+from typing import Optional
+
 from domain.board import Board
+from domain.gameresult import GameResult
 from domain.marker import Marker
 from domain.player import Player
 
 
 class HumanPlayer(Player):
-    _name: str
+    name: str
 
     def __init__(self, name: str, marker: Marker) -> None:
         super().__init__(marker)
-        self._name = name
+        self.name = name
 
     def take_turn(self, board: Board) -> tuple[int, int]:
         print(board)
         return self._get_user_input(board)
 
-    def board_changed(self, new_board: Board, won_or_lost: int) -> None:
+    def board_changed(
+        self, new_board: Board, game_result: Optional[GameResult]
+    ) -> None:
         pass
 
     def _get_user_input(self, board: Board) -> tuple[int, int]:
-        position = input(f"Player {self._name} choose a field (1-3, e.g. 3 1): ").split(
+        position = input(f"Player {self.name} choose a field (1-3, e.g. 3 1): ").split(
             " "
         )
         if len(position) >= 2:
