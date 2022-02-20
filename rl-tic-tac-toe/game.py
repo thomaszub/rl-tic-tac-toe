@@ -10,11 +10,15 @@ class Game:
     _board: Board
     _players: Tuple[Player, Player]
     _current_player: Player
+    _print_board: bool
 
-    def __init__(self, players: Tuple[Player, Player]) -> None:
+    def __init__(
+        self, players: Tuple[Player, Player], print_board: bool = True
+    ) -> None:
         self._players = players
         if players[0].marker() == players[1].marker():
             raise ValueError("Players have the same marker")
+        self._print_board = print_board
         self.reset()
 
     def reset(self) -> None:
@@ -24,7 +28,8 @@ class Game:
     def start(self) -> None:
         game_ended = None
         while game_ended == None:
-            print(self._board)
+            if self._print_board:
+                print(self._board)
             action = self._current_player.take_turn(self._board)
             gameresult = self._board.mark_position(
                 action, self._current_player.marker()
@@ -33,7 +38,8 @@ class Game:
             if gameresult != None:
                 game_ended = True
                 self._next_player().board_changed(self._board, gameresult.opposite())
-                print(self._board)
+                if self._print_board:
+                    print(self._board)
                 if gameresult == GameResult.Won:
                     print(f"Player {self._current_player.name} has won!")
                 else:
