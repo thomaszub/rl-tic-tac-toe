@@ -1,4 +1,3 @@
-from telnetlib import GA
 from typing import List, Optional, Tuple
 
 from .gameresult import GameResult
