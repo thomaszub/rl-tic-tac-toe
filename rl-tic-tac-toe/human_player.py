@@ -14,7 +14,6 @@ class HumanPlayer(Player):
         self.name = name
 
     def take_turn(self, board: Board) -> tuple[int, int]:
-        print(board)
         return self._get_user_input(board)
 
     def board_changed(
