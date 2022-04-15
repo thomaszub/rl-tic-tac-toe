@@ -33,17 +33,13 @@ class QAgentPlayer(Player):
 
     def take_turn(self, board: Board) -> Tuple[int, int]:
         self._state = board.get_fields()
-        possible_actions = board.get_free_positions()
+        free_positions = board.get_free_positions()
         if self._training_mode and np.random.random() < self._epsilon:
-            action = np.random.choice(possible_actions)
+            action = np.random.choice(free_positions)
         else:
-            state_hash = _state_hash(self._state)
-            action_values_for_state = self._action_values.get(state_hash)
-            if action_values_for_state == None:
-                init_values = {action: 0.0 for action in possible_actions}
-                self._action_values[state_hash] = init_values
-                action_values_for_state = init_values
-
+            action_values_for_state = self._action_values_for_state(
+                self._state, free_positions
+            )
             action = max(action_values_for_state, key=action_values_for_state.get)
         self._action = action
         return action
@@ -52,6 +48,17 @@ class QAgentPlayer(Player):
         self, new_board: Board, game_result: Optional[GameResult]
     ) -> None:
         pass
+
+    def _action_values_for_state(
+        self, state: _State, free_positions: List[Tuple[int, int]]
+    ) -> Dict[Tuple[int, int], float]:
+        state_hash = _state_hash(state)
+        action_values_for_state = self._action_values.get(state_hash)
+        if action_values_for_state == None:
+            init_values = {action: 0.0 for action in free_positions}
+            self._action_values[state_hash] = init_values
+            action_values_for_state = init_values
+        return action_values_for_state
 
     def save(self, file: BinaryIO) -> None:
         pickle.dump(self, file)
