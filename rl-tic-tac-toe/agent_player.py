@@ -1,4 +1,5 @@
-from typing import Dict, List, Optional, Tuple
+import pickle
+from typing import BinaryIO, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -52,14 +53,12 @@ class QAgentPlayer(Player):
     ) -> None:
         pass
 
-    def save(self, file: str) -> None:
-        # TODO
-        pass
+    def save(self, file: BinaryIO) -> None:
+        pickle.dump(self, file)
 
     @staticmethod
-    def load(file: str) -> "QAgentPlayer":
-        # TODO
-        pass
+    def load(file: BinaryIO) -> "QAgentPlayer":
+        return pickle.load(file)
 
     def __repr__(self) -> str:
         return self.__str__()
