@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Tuple
 
 from .board import Board
 from .gameresult import GameResult
@@ -14,7 +14,7 @@ class Player(ABC):
         self._marker = marker
 
     @abstractmethod
-    def take_turn(self, board: Board) -> tuple[int, int]:
+    def take_turn(self, board: Board) -> Tuple[int, int]:
         pass
 
     @abstractmethod

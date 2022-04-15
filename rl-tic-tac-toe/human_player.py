@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple
 
 from domain.board import Board
 from domain.gameresult import GameResult
@@ -13,7 +13,7 @@ class HumanPlayer(Player):
         super().__init__(marker)
         self.name = name
 
-    def take_turn(self, board: Board) -> tuple[int, int]:
+    def take_turn(self, board: Board) -> Tuple[int, int]:
         return self._get_user_input(board)
 
     def board_changed(
