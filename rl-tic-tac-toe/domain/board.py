@@ -39,6 +39,11 @@ class Board:
     def get_fields(self) -> List[List[Optional[Marker]]]:
         return deepcopy(self._fields)
 
+    def copy(self) -> "Board":
+        copy = Board()
+        copy._fields = deepcopy(self._fields)
+        return copy
+
     def _validate_position(self, position: Tuple[int, int]) -> None:
         if position[0] < 1 or position[0] > 3 or position[1] < 1 or position[1] > 3:
             raise ValueError(f"Position {position} not on board")
