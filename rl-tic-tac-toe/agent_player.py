@@ -21,11 +21,12 @@ class QAgentPlayer(Player):
     _state: _State
     _action_values: Dict[_StateHash, Dict[Tuple[int, int], float]]
 
-    def __init__(self, marker: Marker, epsilon: float) -> None:
+    def __init__(self, marker: Marker, epsilon: float, learning_rate: float) -> None:
         super().__init__(marker)
         self._state = []
         self._action_values = {}
         self._epsilon = epsilon
+        self._learning_rate = learning_rate
         self._training_mode = False
 
     def training_mode(self, flag: bool) -> None:
@@ -47,7 +48,19 @@ class QAgentPlayer(Player):
     def board_changed(
         self, new_board: Board, game_result: Optional[GameResult]
     ) -> None:
-        pass
+        if game_result == None:
+            new_state = new_board.get_fields()
+            free_positions = new_board.get_free_positions()
+            action_values_for_new_state = self._action_values_for_state(
+                new_state, free_positions
+            )
+            target = max(action_values_for_new_state.values())
+        else:
+            target = float(game_result.value)
+        action_values_for_state = self._action_values.get(_state_hash(self._state))
+        action_values_for_state[self._action] += self._learning_rate * (
+            target - action_values_for_state[self._action]
+        )
 
     def _action_values_for_state(
         self, state: _State, free_positions: List[Tuple[int, int]]
