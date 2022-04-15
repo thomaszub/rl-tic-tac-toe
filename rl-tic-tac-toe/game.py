@@ -28,8 +28,6 @@ class Game:
     def start(self) -> None:
         game_ended = None
         while game_ended == None:
-            if self._print_board:
-                print(self._board)
             action = self._current_player.take_turn(self._board)
             gameresult = self._board.mark_position(
                 action, self._current_player.marker()
@@ -41,7 +39,7 @@ class Game:
                 if self._print_board:
                     print(self._board)
                 if gameresult == GameResult.Won:
-                    print(f"Player {self._current_player.name} has won!")
+                    print(f"{self._current_player} has won!")
                 else:
                     print("The game is a draw!")
             else:
