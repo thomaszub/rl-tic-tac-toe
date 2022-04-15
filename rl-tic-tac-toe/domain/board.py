@@ -27,6 +27,14 @@ class Board:
         else:
             return False
 
+    def get_free_positions(self) -> List[Tuple[int, int]]:
+        free_fields = []
+        for x, col in enumerate(self._fields):
+            for y, field in enumerate(col):
+                if field == None:
+                    free_fields.append((x + 1, y + 1))
+        return free_fields
+
     def _validate_position(self, position: Tuple[int, int]) -> None:
         if position[0] < 1 or position[0] > 3 or position[1] < 1 or position[1] > 3:
             raise ValueError(f"Position {position} not on board")
