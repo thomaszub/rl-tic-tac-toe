@@ -38,10 +38,10 @@ class Game:
                 self._next_player().board_changed(self._board, gameresult.opposite())
                 if self._print_board:
                     print(self._board)
-                if gameresult == GameResult.Won:
-                    print(f"{self._current_player} has won!")
-                else:
-                    print("The game is a draw!")
+                    if gameresult == GameResult.Won:
+                        print(f"{self._current_player} has won!")
+                    else:
+                        print("The game is a draw!")
             else:
                 self._current_player = self._next_player()
 
