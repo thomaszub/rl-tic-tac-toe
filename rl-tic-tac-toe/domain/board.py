@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import List, Optional, Tuple
 
 from .gameresult import GameResult
@@ -34,6 +35,9 @@ class Board:
                 if field == None:
                     free_fields.append((x + 1, y + 1))
         return free_fields
+
+    def get_fields(self) -> List[List[Optional[Marker]]]:
+        return deepcopy(self._fields)
 
     def _validate_position(self, position: Tuple[int, int]) -> None:
         if position[0] < 1 or position[0] > 3 or position[1] < 1 or position[1] > 3:
