@@ -23,13 +23,25 @@ class QAgentPlayer(Player):
     _state: _State
     _action_values: Dict[_StateHash, Dict[Tuple[int, int], float]]
 
-    def __init__(self, marker: Marker, epsilon: float, learning_rate: float) -> None:
+    def __init__(
+        self,
+        marker: Marker,
+        epsilon: float,
+        learning_rate: float,
+        replay_buffer_size: int,
+        batch_size: int,
+        update_target_after_num_buffers: int,
+    ) -> None:
         super().__init__(marker)
         self._state = []
         self._epsilon = epsilon
         self._learning_rate = learning_rate
         self._training_mode = False
         self._replay_buffer = []
+        self._replay_buffer_size = replay_buffer_size
+        self._batch_size = batch_size
+        self._update_target_after_num_buffers = update_target_after_num_buffers
+        self._num_trainings = 0
         self._model = torch.nn.Sequential(
             torch.nn.Linear(9 + 9, 32),
             torch.nn.ReLU(),
@@ -51,9 +63,7 @@ class QAgentPlayer(Player):
             action = np.random.choice(free_positions)
         else:
             action_values = [
-                self._predict(
-                    self._model, self._state, self._field_one_hot_encoded(action)
-                )
+                self._predict(self._model, self._state, action)
                 for action in free_positions
             ]
             action = free_positions[np.argmax(action_values)]
@@ -62,9 +72,10 @@ class QAgentPlayer(Player):
 
     @torch.no_grad()
     def _predict(
-        self, model: torch.nn.Module, state: List[int], action: List[int]
+        self, model: torch.nn.Module, state: List[int], action: Tuple[int, int]
     ) -> float:
-        input = torch.tensor(np.concatenate((state, action))).float().view(1, -1)
+        enc_action = self._field_one_hot_encoded(action)
+        input = torch.tensor(np.concatenate((state, enc_action))).float().view(1, -1)
         return model(input).detach().numpy()
 
     def _board_encoded(self, board: Board) -> List[int]:
@@ -91,6 +102,18 @@ class QAgentPlayer(Player):
         self._replay_buffer.append(
             (self._state, self._action, new_state, reward, game_result != None)
         )
+        if len(self._replay_buffer) >= self._replay_buffer_size:
+            self._num_trainings += 1
+            self._train()
+            self._replay_buffer = []
+
+        if self._num_trainings >= self._update_target_after_num_buffers:
+            self._num_trainings = 0
+            self._target_model = deepcopy(self._model)
+
+    def _train(self) -> None:
+        # TODO
+        pass
 
     def save(self, file: BinaryIO) -> None:
         self._replay_buffer = []
