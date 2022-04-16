@@ -4,6 +4,7 @@ from typing import BinaryIO, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
+from torch.utils.data import DataLoader, TensorDataset
 
 from domain.board import Board
 from domain.gameresult import GameResult
@@ -37,7 +38,8 @@ class QAgentPlayer(Player):
         self._epsilon = epsilon
         self._learning_rate = learning_rate
         self._training_mode = False
-        self._replay_buffer = []
+        self._replay_buffer_input = []
+        self._replay_buffer_target = []
         self._replay_buffer_size = replay_buffer_size
         self._batch_size = batch_size
         self._update_target_after_num_buffers = update_target_after_num_buffers
@@ -50,11 +52,14 @@ class QAgentPlayer(Player):
             torch.nn.Linear(16, 1),
         )
         self._target_model = deepcopy(self._model)
+        self._loss = torch.nn.MSELoss()
+        self._optimizer = torch.optim.Adam(params=self._model.parameters())
 
     def training_mode(self, flag: bool) -> None:
         self._training_mode = flag
         if not self._training_mode:
-            self._replay_buffer = []
+            self._replay_buffer_input = []
+            self._replay_buffer_target = []
 
     def take_turn(self, board: Board) -> Tuple[int, int]:
         self._state = self._board_encoded(board)
@@ -97,26 +102,44 @@ class QAgentPlayer(Player):
     def board_changed(
         self, new_board: Board, game_result: Optional[GameResult]
     ) -> None:
-        new_state = self._board_encoded(new_board)
-        reward = 0.0 if game_result == None else game_result.value
-        self._replay_buffer.append(
-            (self._state, self._action, new_state, reward, game_result != None)
-        )
-        if len(self._replay_buffer) >= self._replay_buffer_size:
+        self._replay_buffer_input.append(np.concatenate((self._state, self._action)))
+
+        if game_result == None:
+            next_state = self._board_encoded(new_board)
+            next_free_positions = new_board.get_free_positions()
+            next_action_values = [
+                self._predict(self._target_model, next_state, action)
+                for action in next_free_positions
+            ]
+            target = np.max(next_action_values)
+        else:
+            target = game_result.value
+
+        self._replay_buffer_target.append([target])
+
+        if len(self._replay_buffer_input) >= self._replay_buffer_size:
             self._num_trainings += 1
             self._train()
-            self._replay_buffer = []
+            self._replay_buffer_input = []
+            self._replay_buffer_target = []
 
         if self._num_trainings >= self._update_target_after_num_buffers:
             self._num_trainings = 0
             self._target_model = deepcopy(self._model)
 
     def _train(self) -> None:
-        # TODO
-        pass
+        input = torch.tensor(np.array(self._replay_buffer_input)).float()
+        target = torch.tensor(np.array(self._replay_buffer_target)).float()
+        dataset = TensorDataset(input, target)
+        loader = DataLoader(dataset, batch_size=self._batch_size, shuffle=True)
+        for X, y in loader:
+            self._optimizer.zero_grad()
+            self._loss(self._model(X), y).backward()
+            self._optimizer.step()
 
     def save(self, file: BinaryIO) -> None:
-        self._replay_buffer = []
+        self._replay_buffer_input = []
+        self._replay_buffer_target = []
         pickle.dump(self, file)
 
     @staticmethod
