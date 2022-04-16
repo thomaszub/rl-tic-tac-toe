@@ -27,15 +27,21 @@ class Game:
 
     def start(self) -> None:
         game_ended = None
+        first_turn = True
         while game_ended == None:
             action = self._current_player.take_turn(self._board)
             gameresult = self._board.mark_position(
                 action, self._current_player.marker()
             )
-            self._current_player.board_changed(self._board, gameresult)
+            if not first_turn:
+                self._next_player().board_changed(
+                    self._board, None if gameresult == None else gameresult.opposite()
+                )
+            else:
+                first_turn = False
             if gameresult != None:
                 game_ended = True
-                self._next_player().board_changed(self._board, gameresult.opposite())
+                self._current_player.board_changed(self._board, gameresult)
                 if self._print_board:
                     print(self._board)
                     if gameresult == GameResult.Won:
