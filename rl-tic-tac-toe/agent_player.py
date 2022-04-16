@@ -12,6 +12,29 @@ from domain.marker import Marker
 from domain.player import Player
 
 
+class RandomAgentPlayer(Player):
+    def __init__(
+        self,
+        marker: Marker,
+    ) -> None:
+        super().__init__(marker)
+
+    def take_turn(self, board: Board) -> Tuple[int, int]:
+        free_positions = board.get_free_positions()
+        return free_positions[np.random.choice(range(0, len(free_positions)))]
+
+    def board_changed(
+        self, new_board: Board, game_result: Optional[GameResult]
+    ) -> None:
+        pass
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    def __str__(self) -> str:
+        return f"Random Agent {self.marker()}"
+
+
 class QAgentPlayer(Player):
     def __init__(
         self,
@@ -54,7 +77,7 @@ class QAgentPlayer(Player):
         self._state = self._board_encoded(board)
         free_positions = board.get_free_positions()
         if self._training_mode and np.random.random() < self._epsilon:
-            action = np.random.choice(free_positions)
+            action = free_positions[np.random.choice(range(0, len(free_positions)))]
         else:
             action_values = [
                 self._predict(self._model, self._state, action)
