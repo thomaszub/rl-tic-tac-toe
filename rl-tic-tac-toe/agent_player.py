@@ -11,19 +11,8 @@ from domain.gameresult import GameResult
 from domain.marker import Marker
 from domain.player import Player
 
-_State = List[List[Optional[Marker]]]
-_StateHash = int
-
-
-def _state_hash(state: _State) -> int:
-    flatten = tuple([field for col in state for field in col])
-    return hash(flatten)
-
 
 class QAgentPlayer(Player):
-    _state: _State
-    _action_values: Dict[_StateHash, Dict[Tuple[int, int], float]]
-
     def __init__(
         self,
         marker: Marker,
@@ -34,7 +23,7 @@ class QAgentPlayer(Player):
         update_target_after_num_buffers: int,
     ) -> None:
         super().__init__(marker)
-        self._state = []
+        self._state = None
         self._epsilon = epsilon
         self._learning_rate = learning_rate
         self._training_mode = False
