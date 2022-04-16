@@ -1,7 +1,9 @@
 import pickle
+from copy import deepcopy
 from typing import BinaryIO, Dict, List, Optional, Tuple
 
 import numpy as np
+import torch
 
 from domain.board import Board
 from domain.gameresult import GameResult
@@ -24,56 +26,74 @@ class QAgentPlayer(Player):
     def __init__(self, marker: Marker, epsilon: float, learning_rate: float) -> None:
         super().__init__(marker)
         self._state = []
-        self._action_values = {}
         self._epsilon = epsilon
         self._learning_rate = learning_rate
         self._training_mode = False
+        self._replay_buffer = []
+        self._model = torch.nn.Sequential(
+            torch.nn.Linear(9 + 9, 32),
+            torch.nn.ReLU(),
+            torch.nn.Linear(32, 16),
+            torch.nn.ReLU(),
+            torch.nn.Linear(16, 1),
+        )
+        self._target_model = deepcopy(self._model)
 
     def training_mode(self, flag: bool) -> None:
         self._training_mode = flag
+        if not self._training_mode:
+            self._replay_buffer = []
 
     def take_turn(self, board: Board) -> Tuple[int, int]:
-        self._state = board.get_fields()
+        self._state = self._board_encoded(board)
         free_positions = board.get_free_positions()
         if self._training_mode and np.random.random() < self._epsilon:
             action = np.random.choice(free_positions)
         else:
-            action_values_for_state = self._action_values_for_state(
-                self._state, free_positions
-            )
-            action = max(action_values_for_state, key=action_values_for_state.get)
-        self._action = action
+            action_values = [
+                self._predict(
+                    self._model, self._state, self._field_one_hot_encoded(action)
+                )
+                for action in free_positions
+            ]
+            action = free_positions[np.argmax(action_values)]
+        self._action = self._field_one_hot_encoded(action)
         return action
+
+    @torch.no_grad()
+    def _predict(
+        self, model: torch.nn.Module, state: List[int], action: List[int]
+    ) -> float:
+        input = torch.tensor(np.concatenate((state, action))).float().view(1, -1)
+        return model(input).detach().numpy()
+
+    def _board_encoded(self, board: Board) -> List[int]:
+        def field_to_int(field: Optional[Marker]) -> int:
+            if field == None:
+                return 0
+            elif field == self.marker():
+                return 1
+            else:
+                return -1
+
+        return [field_to_int(field) for col in board.get_fields() for field in col]
+
+    def _field_one_hot_encoded(self, field: Tuple[int, int]) -> List[int]:
+        one_hot = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        one_hot[field[1] - 1 + 3 * (field[0] - 1)] = 1
+        return one_hot
 
     def board_changed(
         self, new_board: Board, game_result: Optional[GameResult]
     ) -> None:
-        if game_result == None:
-            new_state = new_board.get_fields()
-            free_positions = new_board.get_free_positions()
-            action_values_for_new_state = self._action_values_for_state(
-                new_state, free_positions
-            )
-            target = max(action_values_for_new_state.values())
-        else:
-            target = float(game_result.value)
-        action_values_for_state = self._action_values.get(_state_hash(self._state))
-        action_values_for_state[self._action] += self._learning_rate * (
-            target - action_values_for_state[self._action]
+        new_state = self._board_encoded(new_board)
+        reward = 0.0 if game_result == None else game_result.value
+        self._replay_buffer.append(
+            (self._state, self._action, new_state, reward, game_result != None)
         )
 
-    def _action_values_for_state(
-        self, state: _State, free_positions: List[Tuple[int, int]]
-    ) -> Dict[Tuple[int, int], float]:
-        state_hash = _state_hash(state)
-        action_values_for_state = self._action_values.get(state_hash)
-        if action_values_for_state == None:
-            init_values = {action: 0.0 for action in free_positions}
-            self._action_values[state_hash] = init_values
-            action_values_for_state = init_values
-        return action_values_for_state
-
     def save(self, file: BinaryIO) -> None:
+        self._replay_buffer = []
         pickle.dump(self, file)
 
     @staticmethod
