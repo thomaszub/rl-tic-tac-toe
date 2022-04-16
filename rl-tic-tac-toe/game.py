@@ -1,8 +1,9 @@
 from random import randint
-from typing import Tuple
+from typing import Optional, Tuple
 
 from domain.board import Board
 from domain.gameresult import GameResult
+from domain.marker import Marker
 from domain.player import Player
 
 
@@ -25,7 +26,7 @@ class Game:
         self._board = Board()
         self._current_player = self._players[randint(0, 1)]
 
-    def start(self) -> None:
+    def start(self) -> Optional[Marker]:
         game_ended = None
         first_turn = True
         while game_ended == None:
@@ -48,6 +49,11 @@ class Game:
                         print(f"{self._current_player} has won!")
                     else:
                         print("The game is a draw!")
+
+                if gameresult == GameResult.Won:
+                    return self._current_player.marker()
+                else:
+                    return None
             else:
                 self._current_player = self._next_player()
 
