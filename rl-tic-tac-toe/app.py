@@ -30,7 +30,7 @@ def train(playerO: QAgentPlayer) -> None:
 def main():
     playerX = HumanPlayer(Marker.X)
 
-    playerO = QAgentPlayer(Marker.O, 0.1, 0.03, 1024, 32, 8)
+    playerO = QAgentPlayer(Marker.O, 0.1, 1024, 32, 8)
     train(playerO)
     game = Game((playerX, playerO))
     game.start()

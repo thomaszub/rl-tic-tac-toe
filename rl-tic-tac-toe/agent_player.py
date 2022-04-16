@@ -40,7 +40,6 @@ class QAgentPlayer(Player):
         self,
         marker: Marker,
         epsilon: float,
-        learning_rate: float,
         replay_buffer_size: int,
         batch_size: int,
         update_target_after_num_buffers: int,
@@ -48,7 +47,6 @@ class QAgentPlayer(Player):
         super().__init__(marker)
         self._state = None
         self._epsilon = epsilon
-        self._learning_rate = learning_rate
         self._training_mode = False
         self._replay_buffer_input = []
         self._replay_buffer_target = []
