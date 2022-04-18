@@ -112,6 +112,8 @@ class QAgentPlayer(Player):
     def board_changed(
         self, new_board: Board, game_result: Optional[GameResult]
     ) -> None:
+        if not self._training_mode:
+            return
         self._replay_buffer_input.append(np.concatenate((self._state, self._action)))
 
         if game_result == None:
