@@ -14,7 +14,7 @@ def train(playerO: QAgentPlayer) -> None:
 
     playerX = RandomAgentPlayer(Marker.X)
     playerO.training_mode(True)
-    with trange(0, 20000) as tr:
+    with trange(0, 50000) as tr:
         for _ in tr:
             game = Game((playerX, playerO), False)
             result = game.start()
@@ -35,7 +35,7 @@ def main():
             playerO = QAgentPlayer.load(f)
     except:
         print(f"Info: Could not load agent from {filename}, creating a new agent")
-        playerO = QAgentPlayer(Marker.O, 0.1, 1024, 32, 8)
+        playerO = QAgentPlayer(Marker.O, 0.1, 2048, 32, 8)
 
     train(playerO)
     playerX = HumanPlayer(Marker.X)
