@@ -28,12 +28,6 @@ class RandomAgentPlayer(Player):
     ) -> None:
         pass
 
-    def __repr__(self) -> str:
-        return self.__str__()
-
-    def __str__(self) -> str:
-        return f"Random Agent {self.marker()}"
-
 
 class QAgentPlayer(Player):
     def __init__(
@@ -157,9 +151,3 @@ class QAgentPlayer(Player):
     @staticmethod
     def load(file: BinaryIO) -> "QAgentPlayer":
         return pickle.load(file)
-
-    def __repr__(self) -> str:
-        return self.__str__()
-
-    def __str__(self) -> str:
-        return f"Q-Agent {self.marker()}"

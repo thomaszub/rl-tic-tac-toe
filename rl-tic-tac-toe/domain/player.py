@@ -25,3 +25,9 @@ class Player(ABC):
 
     def marker(self) -> Marker:
         return self._marker
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    def __str__(self) -> str:
+        return f"{type(self).__name__} {self.marker()}"

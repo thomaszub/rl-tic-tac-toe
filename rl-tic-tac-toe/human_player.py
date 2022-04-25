@@ -32,9 +32,3 @@ class HumanPlayer(Player):
                     print(f"Position {chosen_pos} is not free, try again!")
         print("Wrong input, try again!")
         return self._get_user_input(board)
-
-    def __repr__(self) -> str:
-        return self.__str__()
-
-    def __str__(self) -> str:
-        return f"Player {self.marker()}"
