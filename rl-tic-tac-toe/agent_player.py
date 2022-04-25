@@ -1,6 +1,6 @@
 import pickle
 from copy import deepcopy
-from typing import BinaryIO, Dict, List, Optional, Tuple
+from typing import BinaryIO, List, Optional, Tuple
 
 import numpy as np
 import torch

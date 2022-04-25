@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 from tqdm import trange
 
 from agent_player import QAgentPlayer, RandomAgentPlayer
