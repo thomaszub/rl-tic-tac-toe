@@ -29,29 +29,27 @@ class Game:
     def start(self) -> Optional[Marker]:
         game_ended = None
         first_turn = True
-        while game_ended == None:
-            action = self._current_player.take_turn(self._board)
-            gameresult = self._board.mark_position(
-                action, self._current_player.marker()
-            )
+        while game_ended is None:
+            player = self._current_player
+            action = player.take_turn(self._board)
+            result = self._board.mark_position(action, player.marker())
             if not first_turn:
-                self._next_player().board_changed(
-                    self._board, None if gameresult == None else gameresult.opposite()
-                )
+                opposite_result = None if result is None else result.opposite()
+                self._next_player().board_changed(self._board, opposite_result)
             else:
                 first_turn = False
-            if gameresult != None:
+            if result is not None:
                 game_ended = True
-                self._current_player.board_changed(self._board, gameresult)
+                player.board_changed(self._board, result)
                 if self._print_board:
                     print(self._board)
-                    if gameresult == GameResult.Won:
-                        print(f"{self._current_player} has won!")
+                    if result == GameResult.Won:
+                        print(f"{player} has won!")
                     else:
                         print("The game is a draw!")
 
-                if gameresult == GameResult.Won:
-                    return self._current_player.marker()
+                if result == GameResult.Won:
+                    return player.marker()
                 else:
                     return None
             else:

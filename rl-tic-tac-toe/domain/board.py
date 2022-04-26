@@ -23,7 +23,7 @@ class Board:
         return self._get_gameresult(position, marker)
 
     def is_position_free(self, position: Tuple[int, int]) -> bool:
-        if self._get_field(position) == None:
+        if self._get_field(position) is None:
             return True
         else:
             return False
@@ -32,7 +32,7 @@ class Board:
         free_fields = []
         for x, col in enumerate(self._fields):
             for y, field in enumerate(col):
-                if field == None:
+                if field is None:
                     free_fields.append((x + 1, y + 1))
         return free_fields
 
@@ -84,7 +84,7 @@ class Board:
         ):
             return GameResult.Won
         num_elems = len(
-            [field for col in self._fields for field in col if field != None]
+            [field for col in self._fields for field in col if field is not None]
         )
         if num_elems >= 9:
             return GameResult.Draw
@@ -92,7 +92,7 @@ class Board:
 
     def __str__(self) -> str:
         col_strings = [
-            "|".join(map(lambda x: " " if x == None else x.__str__(), col))
+            "|".join(map(lambda x: " " if x is None else x.__str__(), col))
             for col in self._fields
         ]
         str = "\n-----\n".join(col_strings)

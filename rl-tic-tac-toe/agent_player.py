@@ -69,7 +69,8 @@ class QAgentPlayer(Player):
         self._state = self._board_encoded(board)
         free_positions = board.get_free_positions()
         if self._training_mode and np.random.random() < self._epsilon:
-            action = free_positions[np.random.choice(range(0, len(free_positions)))]
+            choice = np.random.choice(range(0, len(free_positions)))
+            action = free_positions[choice]
         else:
             action_values = [
                 self._predict(self._model, self._state, action)
@@ -84,12 +85,13 @@ class QAgentPlayer(Player):
         self, model: torch.nn.Module, state: List[int], action: Tuple[int, int]
     ) -> float:
         enc_action = self._field_one_hot_encoded(action)
-        input = torch.tensor(np.concatenate((state, enc_action))).float().view(1, -1)
+        state_and_action = np.concatenate((state, enc_action))
+        input = torch.tensor(state_and_action).float().view(1, -1)
         return model(input).detach().numpy()
 
     def _board_encoded(self, board: Board) -> List[int]:
         def field_to_int(field: Optional[Marker]) -> int:
-            if field == None:
+            if field is None:
                 return 0
             elif field == self.marker():
                 return 1
@@ -108,9 +110,10 @@ class QAgentPlayer(Player):
     ) -> None:
         if not self._training_mode:
             return
-        self._replay_buffer_input.append(np.concatenate((self._state, self._action)))
+        state_and_action = np.concatenate((self._state, self._action))
+        self._replay_buffer_input.append(state_and_action)
 
-        if game_result == None:
+        if game_result is None:
             next_state = self._board_encoded(new_board)
             next_free_positions = new_board.get_free_positions()
             next_action_values = [
