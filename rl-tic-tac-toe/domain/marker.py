@@ -2,11 +2,11 @@ from enum import Enum
 
 
 class Marker(Enum):
-    X = 1
-    O = 2
+    Cross = 1
+    Circle = 2
 
     def __str__(self) -> str:
-        if self == Marker.X:
+        if self == Marker.Cross:
             return "X"
         else:
             return "O"

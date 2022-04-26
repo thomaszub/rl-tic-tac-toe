@@ -98,7 +98,8 @@ class QAgentPlayer(Player):
             else:
                 return -1
 
-        return [field_to_int(field) for col in board.get_fields() for field in col]
+        fields = board.get_fields()
+        return [field_to_int(field) for col in fields for field in col]
 
     def _field_one_hot_encoded(self, field: Tuple[int, int]) -> List[int]:
         one_hot = [0, 0, 0, 0, 0, 0, 0, 0, 0]

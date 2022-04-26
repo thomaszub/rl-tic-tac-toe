@@ -1,5 +1,6 @@
 from copy import deepcopy
-from typing import List, Optional, Tuple
+from dataclasses import Field
+from typing import Callable, List, Optional, Tuple
 
 from .gameresult import GameResult
 from .marker import Marker
@@ -44,9 +45,9 @@ class Board:
         copy._fields = deepcopy(self._fields)
         return copy
 
-    def _validate_position(self, position: Tuple[int, int]) -> None:
-        if position[0] < 1 or position[0] > 3 or position[1] < 1 or position[1] > 3:
-            raise ValueError(f"Position {position} not on board")
+    def _validate_position(self, pos: Tuple[int, int]) -> None:
+        if pos[0] < 1 or pos[0] > 3 or pos[1] < 1 or pos[1] > 3:
+            raise ValueError(f"Position {pos} not on board")
 
     def _get_field(self, position: Tuple[int, int]) -> Optional[Marker]:
         return self._fields[position[0] - 1][position[1] - 1]
@@ -57,38 +58,31 @@ class Board:
     def _get_gameresult(
         self, position: Tuple[int, int], marker: Marker
     ) -> Optional[GameResult]:
+        fields = self._fields
         col = position[1] - 1
         row = position[0] - 1
-        if (
-            self._fields[0][col] == marker
-            and self._fields[1][col] == marker
-            and self._fields[2][col] == marker
-        ):
+        check = self._field_checker(marker)
+        if check(fields[0][col], fields[1][col], fields[2][col]):
             return GameResult.Won
-        if (
-            self._fields[row][0] == marker
-            and self._fields[row][1] == marker
-            and self._fields[row][2] == marker
-        ):
+        if check(fields[row][0], fields[row][1], fields[row][2]):
             return GameResult.Won
-        if (
-            self._fields[0][0] == marker
-            and self._fields[1][1] == marker
-            and self._fields[2][2] == marker
-        ):
+        if check(fields[0][0], fields[1][1], fields[2][2]):
             return GameResult.Won
-        if (
-            self._fields[0][2] == marker
-            and self._fields[1][1] == marker
-            and self._fields[2][0] == marker
-        ):
+        if check(fields[0][2], fields[1][1], fields[2][0]):
             return GameResult.Won
-        num_elems = len(
-            [field for col in self._fields for field in col if field is not None]
-        )
+        num_elems = len([field for col in fields for field in col if field is not None])
         if num_elems >= 9:
             return GameResult.Draw
         return None
+
+    def _field_checker(self, marker: Marker) -> Callable[[List[Field]], bool]:
+        def _check(*fields: List[Field]) -> bool:
+            for field in fields:
+                if field != marker:
+                    return False
+            return True
+
+        return _check
 
     def __str__(self) -> str:
         col_strings = [

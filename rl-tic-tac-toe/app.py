@@ -10,15 +10,15 @@ def train(playerO: QAgentPlayer) -> None:
     num_won = 0
     num_lost = 0
 
-    playerX = RandomAgentPlayer(Marker.X)
+    playerX = RandomAgentPlayer(Marker.Cross)
     playerO.training_mode(True)
     with trange(0, 50000) as tr:
         for _ in tr:
             game = Game((playerX, playerO), False)
             result = game.start()
-            if result == Marker.X:
+            if result == Marker.Cross:
                 num_lost += 1
-            elif result == Marker.O:
+            elif result == Marker.Circle:
                 num_won += 1
 
             tr.set_postfix(num_lost=num_lost, num_won=num_won)
@@ -31,12 +31,12 @@ def main():
         with open(filename, "rb") as f:
             print(f"Info: Loading agent from {filename}")
             playerO = QAgentPlayer.load(f)
-    except:
-        print(f"Info: Could not load agent from {filename}, creating a new agent")
-        playerO = QAgentPlayer(Marker.O, 0.1, 2048, 32, 8)
+    except FileNotFoundError:
+        print("Info: Creating a new agent")
+        playerO = QAgentPlayer(Marker.Circle, 0.1, 2048, 32, 8)
 
     train(playerO)
-    playerX = HumanPlayer(Marker.X)
+    playerX = HumanPlayer(Marker.Cross)
     game = Game((playerX, playerO))
     game.start()
 
@@ -44,7 +44,7 @@ def main():
         with open(filename, "wb") as f:
             print(f"Info: Saving agent to {filename}")
             playerO.save(f)
-    except:
+    except OSError:
         print(f"Error: Could not save agent to {filename}")
 
 
