@@ -70,7 +70,7 @@ class Board:
             return GameResult.Won
         if check(fields[0][2], fields[1][1], fields[2][0]):
             return GameResult.Won
-        num_elems = len([field for col in fields for field in col if field is not None])
+        num_elems = len([f for col in fields for f in col if f is not None])
         if num_elems >= 9:
             return GameResult.Draw
         return None
